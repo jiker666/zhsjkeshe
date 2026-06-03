@@ -347,9 +347,9 @@ VALUES
  '观察 Agent 决策链，思考为什么系统会把未授权访问判定为高危风险。',
  'http://localhost:18080/api/tasks/1/agent-decisions', 'GET',
  'GET /api/tasks/1/agent-decisions HTTP/1.1\nAuthorization: Bearer <token>',
- '高危通常意味着未登录或低权限即可访问高价值数据，影响范围大且利用门槛低。',
+ '查看 Agent 决策链第 5 步 RESULT_ANALYSIS：未登录访问管理接口可能导致用户信息泄露，因此评分 9.1。根据题目要求提交格式为 flag{unauthorized_high_risk}。',
  'd3c34759391465e69e94a51e59a22af0359fc60d2fa9e1e5b4804ce56ba4b1ee',
- '未授权访问后台接口可能直接泄露用户、角色或配置数据，因此 Agent 结合影响和可利用性给出高危结论。',
+ '本题答案为 flag{unauthorized_high_risk}。Agent 将未授权访问判为高危，是因为未登录即可访问管理接口，可能直接泄露用户、角色或配置数据，利用门槛低、影响范围大。',
  1, 'ENABLED', 1, NOW(), NOW());
 
 INSERT INTO user_score (user_id, username, total_score, solved_count, submit_count, correct_rate, update_time) VALUES

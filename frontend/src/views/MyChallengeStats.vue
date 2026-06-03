@@ -44,16 +44,21 @@
 
       <section class="panel">
         <div class="section-title">最近挑战记录</div>
-        <el-table :data="stats.recentSubmissions" height="310" empty-text="暂无提交记录">
-          <el-table-column prop="challengeId" label="题目" width="80" />
-          <el-table-column prop="correct" label="结果" width="90">
-            <template #default="{ row }">
-              <el-tag :type="row.correct === 1 ? 'success' : 'danger'" effect="dark">{{ row.correct === 1 ? '正确' : '错误' }}</el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column prop="scoreGot" label="得分" width="80" />
-          <el-table-column prop="submitTime" label="时间" min-width="170" />
-        </el-table>
+        <div v-if="stats.recentSubmissions.length" class="table-shell">
+          <el-table :data="stats.recentSubmissions" height="310">
+            <el-table-column prop="challengeId" label="题目" width="80" />
+            <el-table-column prop="correct" label="结果" width="90">
+              <template #default="{ row }">
+                <el-tag :type="row.correct === 1 ? 'success' : 'danger'" effect="dark">{{ row.correct === 1 ? '正确' : '错误' }}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column prop="scoreGot" label="得分" width="80" />
+            <el-table-column prop="submitTime" label="时间" min-width="150" show-overflow-tooltip />
+          </el-table>
+        </div>
+        <div v-else class="empty-records">
+          <el-empty description="暂无提交记录，去完成第一道题吧" />
+        </div>
       </section>
     </div>
   </div>
@@ -132,6 +137,7 @@ onBeforeUnmount(() => charts.forEach((item) => item.dispose()))
 .content-grid {
   display: grid;
   gap: 16px;
+  min-width: 0;
 }
 
 .stats-grid {
@@ -141,8 +147,15 @@ onBeforeUnmount(() => charts.forEach((item) => item.dispose()))
 
 .charts-grid,
 .content-grid {
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-bottom: 16px;
+}
+
+.panel,
+.stat-card,
+.chart,
+.table-shell {
+  min-width: 0;
 }
 
 .stat-card {
@@ -208,6 +221,21 @@ onBeforeUnmount(() => charts.forEach((item) => item.dispose()))
 .badge p {
   margin: 6px 0 0;
   color: #bfdbfe;
+}
+
+.table-shell {
+  width: 100%;
+  overflow: hidden;
+}
+
+.empty-records {
+  height: 310px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(118, 171, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(8, 15, 28, 0.38);
 }
 
 @media (max-width: 1100px) {

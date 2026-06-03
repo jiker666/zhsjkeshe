@@ -53,8 +53,8 @@ public class TaskUpdateRequest {
         return generateReport;
     }
 
-    public void setGenerateReport(Integer generateReport) {
-        this.generateReport = generateReport;
+    public void setGenerateReport(Object generateReport) {
+        this.generateReport = parseGenerateReport(generateReport);
     }
 
     public String getStatus() {
@@ -63,5 +63,28 @@ public class TaskUpdateRequest {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    private Integer parseGenerateReport(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof Boolean bool) {
+            return bool ? 1 : 0;
+        }
+        if (value instanceof Number number) {
+            return number.intValue() == 0 ? 0 : 1;
+        }
+        String text = String.valueOf(value).trim();
+        if (text.isEmpty()) {
+            return null;
+        }
+        if ("true".equalsIgnoreCase(text)) {
+            return 1;
+        }
+        if ("false".equalsIgnoreCase(text)) {
+            return 0;
+        }
+        return Integer.parseInt(text) == 0 ? 0 : 1;
     }
 }

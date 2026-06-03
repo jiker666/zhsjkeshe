@@ -55,7 +55,8 @@ const router = createRouter({
         { path: 'forbidden', component: Forbidden },
         { path: 'system-info', component: SystemInfo }
       ]
-    }
+    },
+    { path: '/:pathMatch(.*)*', redirect: () => (localStorage.getItem('token') ? roleHome() : '/login') }
   ]
 })
 
