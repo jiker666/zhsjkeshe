@@ -26,6 +26,10 @@ public class ApiResponse<T> {
         return new ApiResponse<>(500, message, null);
     }
 
+    public static <T> ApiResponse<T> badRequest(String message) {
+        return new ApiResponse<>(400, message, null);
+    }
+
     public static <T> ApiResponse<T> unauthorized(String message) {
         return new ApiResponse<>(401, message, null);
     }

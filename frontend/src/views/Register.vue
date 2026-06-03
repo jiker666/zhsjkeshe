@@ -15,8 +15,11 @@
 
     <section class="login-panel">
       <div class="login-title">创建账号</div>
-      <div class="login-subtitle">默认角色：安全测试人员 USER</div>
-      <el-form :model="form" label-position="top">
+      <div class="login-subtitle">{{ settings.enableRegister ? '默认角色：安全测试人员 USER' : '管理员已关闭自助注册' }}</div>
+      <div v-if="!settings.enableRegister" class="closed-box">
+        当前平台暂不开放新用户自助注册，请使用演示账号或联系管理员创建账号。
+      </div>
+      <el-form v-else :model="form" label-position="top">
         <el-form-item label="用户名"><el-input v-model="form.username" size="large" /></el-form-item>
         <el-form-item label="昵称"><el-input v-model="form.nickname" size="large" /></el-form-item>
         <el-form-item label="邮箱"><el-input v-model="form.email" size="large" /></el-form-item>
@@ -34,10 +37,10 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { register } from '../api'
+import { getPublicSettings, register } from '../api'
 
 const router = useRouter()
 const loading = ref(false)
@@ -49,6 +52,17 @@ const form = reactive({
   email: '',
   phone: ''
 })
+const settings = reactive({
+  enableRegister: true
+})
+
+async function loadSettings() {
+  try {
+    Object.assign(settings, await getPublicSettings())
+  } catch {
+    settings.enableRegister = true
+  }
+}
 
 function validate() {
   if (!form.username) return '用户名不能为空'
@@ -59,6 +73,10 @@ function validate() {
 }
 
 async function submit() {
+  if (!settings.enableRegister) {
+    ElMessage.warning('系统已关闭注册')
+    return
+  }
   const message = validate()
   if (message) {
     ElMessage.warning(message)
@@ -75,6 +93,8 @@ async function submit() {
     loading.value = false
   }
 }
+
+onMounted(loadSettings)
 </script>
 
 <style scoped>
@@ -185,5 +205,15 @@ async function submit() {
   gap: 4px;
   margin-top: 14px;
   color: #9fb5d5;
+}
+
+.closed-box {
+  padding: 18px;
+  margin-bottom: 18px;
+  border: 1px solid rgba(251, 191, 36, 0.34);
+  border-radius: 8px;
+  color: #fde68a;
+  line-height: 1.7;
+  background: rgba(120, 53, 15, 0.24);
 }
 </style>

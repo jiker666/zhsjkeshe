@@ -26,20 +26,21 @@
           登录
         </el-button>
       </el-form>
-      <div class="login-links">
+      <div v-if="settings.enableRegister" class="login-links">
         <span>没有账号？</span>
         <el-button link type="primary" @click="$router.push('/register')">立即注册</el-button>
       </div>
+      <div v-else class="register-disabled">当前已关闭自助注册，请联系管理员创建账号</div>
       <div class="demo-account">管理员：admin / 123456　普通用户：user / 123456</div>
     </section>
   </div>
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { login } from '../api'
+import { getPublicSettings, login } from '../api'
 
 const router = useRouter()
 const loading = ref(false)
@@ -47,6 +48,17 @@ const form = reactive({
   username: 'admin',
   password: '123456'
 })
+const settings = reactive({
+  enableRegister: true
+})
+
+async function loadSettings() {
+  try {
+    Object.assign(settings, await getPublicSettings())
+  } catch {
+    settings.enableRegister = true
+  }
+}
 
 async function submit() {
   loading.value = true
@@ -62,6 +74,8 @@ async function submit() {
     loading.value = false
   }
 }
+
+onMounted(loadSettings)
 </script>
 
 <style scoped>
@@ -176,6 +190,13 @@ async function submit() {
   gap: 4px;
   margin-top: 14px;
   color: #9fb5d5;
+}
+
+.register-disabled {
+  margin-top: 14px;
+  text-align: center;
+  color: #fbbf24;
+  font-size: 13px;
 }
 
 @media (max-width: 920px) {

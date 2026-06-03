@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(IllegalArgumentException.class)
     public ApiResponse<Void> handleIllegalArgument(IllegalArgumentException exception) {
-        return ApiResponse.fail(exception.getMessage());
+        return ApiResponse.badRequest(exception.getMessage());
     }
 
     @ResponseStatus(HttpStatus.FORBIDDEN)
@@ -22,13 +23,14 @@ public class GlobalExceptionHandler {
         return ApiResponse.forbidden(exception.getMessage());
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ApiResponse<Void> handleValidation(MethodArgumentNotValidException exception) {
         String message = exception.getBindingResult().getFieldErrors().stream()
                 .findFirst()
                 .map(error -> error.getDefaultMessage())
                 .orElse("参数错误，请检查输入内容");
-        return ApiResponse.fail(message);
+        return ApiResponse.badRequest(message);
     }
 
     @ExceptionHandler(Exception.class)

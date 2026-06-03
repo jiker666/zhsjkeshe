@@ -10,6 +10,7 @@ import com.course.securityagent.entity.User;
 import com.course.securityagent.mapper.UserMapper;
 import com.course.securityagent.service.AuditLogService;
 import com.course.securityagent.service.AuthService;
+import com.course.securityagent.service.SystemSettingsService;
 import com.course.securityagent.service.TokenService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -23,11 +24,16 @@ public class AuthServiceImpl implements AuthService {
     private final UserMapper userMapper;
     private final TokenService tokenService;
     private final AuditLogService auditLogService;
+    private final SystemSettingsService settingsService;
 
-    public AuthServiceImpl(UserMapper userMapper, TokenService tokenService, AuditLogService auditLogService) {
+    public AuthServiceImpl(UserMapper userMapper,
+                           TokenService tokenService,
+                           AuditLogService auditLogService,
+                           SystemSettingsService settingsService) {
         this.userMapper = userMapper;
         this.tokenService = tokenService;
         this.auditLogService = auditLogService;
+        this.settingsService = settingsService;
     }
 
     @Override
@@ -46,6 +52,10 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserDTO register(RegisterRequest request) {
+        if (!settingsService.isRegisterEnabled()) {
+            auditLogService.record(null, request == null ? "unknown" : request.getUsername(), "-", "REGISTER", "认证中心", "系统已关闭注册", "FAILED");
+            throw new IllegalArgumentException("系统已关闭注册，请联系管理员创建账号");
+        }
         validateRegister(request);
         Long count = userMapper.selectCount(new LambdaQueryWrapper<User>()
                 .eq(User::getUsername, request.getUsername()));

@@ -4,6 +4,10 @@ import axios from 'axios'
 export const login = (data) => request.post('/auth/login', data)
 export const register = (data) => request.post('/auth/register', data)
 export const getHealth = () => request.get('/health')
+export const getPublicSettings = () => request.get('/settings/public')
+export const getSystemSettings = () => request.get('/admin/settings')
+export const updateSystemSettings = (data) => request.put('/admin/settings', data)
+export const resetSystemSettings = () => request.post('/admin/settings/reset')
 export const getDashboardStats = () => request.get('/dashboard/stats')
 
 export const listTasks = (params) => request.get('/tasks', { params })

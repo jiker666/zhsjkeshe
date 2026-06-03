@@ -16,6 +16,7 @@ DROP TABLE IF EXISTS challenge;
 DROP TABLE IF EXISTS test_log;
 DROP TABLE IF EXISTS test_result;
 DROP TABLE IF EXISTS test_task;
+DROP TABLE IF EXISTS system_config;
 DROP TABLE IF EXISTS `user`;
 
 CREATE TABLE `user` (
@@ -30,6 +31,15 @@ CREATE TABLE `user` (
   create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
 ) COMMENT='用户表';
+
+CREATE TABLE system_config (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '配置ID',
+  config_key VARCHAR(64) NOT NULL UNIQUE COMMENT '配置键',
+  config_value TEXT COMMENT '配置值',
+  config_label VARCHAR(128) COMMENT '配置名称',
+  update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  INDEX idx_config_key (config_key)
+) COMMENT='系统配置表';
 
 CREATE TABLE test_task (
   id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '任务ID',
@@ -355,6 +365,14 @@ VALUES
 INSERT INTO user_score (user_id, username, total_score, solved_count, submit_count, correct_rate, update_time) VALUES
 (1, 'admin', 0, 0, 0, 0.0, NOW()),
 (2, 'user', 0, 0, 0, 0.0, NOW());
+
+INSERT INTO system_config (config_key, config_value, config_label, update_time) VALUES
+('platform_name', '自主安全测试智能体可视化平台', '平台名称', NOW()),
+('agent_mode', '规则模拟模式', 'Agent 模式', NOW()),
+('default_depth', '标准', '默认测试深度', NOW()),
+('auto_report', 'true', '自动生成报告', NOW()),
+('enable_register', 'true', '开启注册', NOW()),
+('security_statement', '本平台仅用于本地靶场、自建测试系统、课程演示环境或已授权目标，不执行未授权攻击或破坏性扫描。', '安全声明', NOW());
 
 INSERT INTO audit_log (user_id, username, role, action, module, detail, ip, result, create_time) VALUES
 (1, 'admin', 'ADMIN', 'LOGIN', '认证中心', '管理员登录系统', 'local', 'SUCCESS', NOW() - INTERVAL 1 DAY),
