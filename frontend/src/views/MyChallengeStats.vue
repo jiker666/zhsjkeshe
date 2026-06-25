@@ -93,7 +93,7 @@ const cards = computed(() => [
 ])
 
 function iconText(icon) {
-  const map = { ice: 'ICE', shield: 'SHD', crown: 'TOP', target: 'P1', agent: 'AI' }
+  const map = { ice: 'ICE', shield: 'SHD', crown: 'TOP', target: 'P1', agent: 'AI', tea: 'TEA' }
   return map[icon] || 'OK'
 }
 
@@ -112,7 +112,7 @@ function chart(el) {
 function renderCharts() {
   charts.splice(0).forEach((item) => item.dispose())
   const mastery = stats.typeMastery || {}
-  const types = ['信息泄露', '水平越权', '弱口令', '接口参数篡改', '敏感信息泄露', 'Agent 推理']
+  const types = ['信息泄露', '水平越权', '弱口令', '接口参数篡改', '敏感信息泄露', 'Agent 推理', '游戏题']
   chart(radarRef.value).setOption({
     radar: { indicator: types.map((name) => ({ name, max: 3 })), axisName: { color: '#cbd5e1' }, splitLine: { lineStyle: { color: 'rgba(148,163,184,.18)' } } },
     series: [{ type: 'radar', areaStyle: {}, data: [{ value: types.map((name) => mastery[name] || 0), name: '掌握度' }], color: '#38bdf8' }]

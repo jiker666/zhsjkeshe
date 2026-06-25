@@ -1,3 +1,8 @@
+SET NAMES utf8mb4;
+SET character_set_client = utf8mb4;
+SET character_set_connection = utf8mb4;
+SET character_set_results = utf8mb4;
+
 CREATE DATABASE IF NOT EXISTS security_agent_platform
   DEFAULT CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
@@ -360,7 +365,15 @@ VALUES
  '查看 Agent 决策链第 5 步 RESULT_ANALYSIS：未登录访问管理接口可能导致用户信息泄露，因此评分 9.1。根据题目要求提交格式为 flag{unauthorized_high_risk}。',
  'd3c34759391465e69e94a51e59a22af0359fc60d2fa9e1e5b4804ce56ba4b1ee',
  '本题答案为 flag{unauthorized_high_risk}。Agent 将未授权访问判为高危，是因为未登录即可访问管理接口，可能直接泄露用户、角色或配置数据，利用门槛低、影响范围大。',
- 1, 'ENABLED', 1, NOW(), NOW());
+ 1, 'ENABLED', 1, NOW(), NOW()),
+(7, '奶茶一血：Score Rush', '游戏题', '中等', 30,
+ '这是一个部署在独立端口的课程演示小游戏靶场。正常手打需要在 35 秒内高速点击并保持连击，理论上可以达到 80000 分，但难度很高；更稳定的 Web 思路是观察游戏结算请求，判断服务端是否过度信任客户端提交的 score 参数。',
+ 'http://106.52.183.228:30011/', 'GET',
+ '打开 http://106.52.183.228:30011/ 进行游戏。拿到 flag 后回到本平台提交答案，管理员后台会记录正确提交和一血。',
+ '手打路线：尽量不漏块，保持连击，优先点击高分块。Web 路线：关注结算时提交的 score 是否完全由客户端控制。',
+ '32cb4e15df5770ff0278a87719252f8e9de9bb2f8b1effe29ae4d5a20be56c53',
+ '本题答案为 flag{score_tamper_first_blood_milktea}。小游戏本身部署在独立端口，平台只负责发布题目和记录提交。漏洞点是服务端结算接口过度信任客户端提交的 score，真实业务中积分、金额、角色等关键参数应由服务端计算或校验。管理员在题目提交记录中可以看到第一条正确提交，作为一血奖励依据。',
+ 6, 'ENABLED', 1, NOW(), NOW());
 
 INSERT INTO user_score (user_id, username, total_score, solved_count, submit_count, correct_rate, update_time) VALUES
 (1, 'admin', 0, 0, 0, 0.0, NOW()),

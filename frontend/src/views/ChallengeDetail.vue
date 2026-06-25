@@ -31,6 +31,7 @@
         <div class="target-box">
           <span>目标地址</span>
           <code>{{ challenge.targetUrl }}</code>
+          <el-button v-if="isExternalTarget(challenge.targetUrl)" type="primary" @click="openTarget">打开题目链接</el-button>
         </div>
 
         <div class="answer-box" :class="{ shake: shaking }">
@@ -169,7 +170,15 @@ async function submit() {
 function nextChallenge() {
   const next = Number(route.params.id) + 1
   successVisible.value = false
-  router.push(`/challenges/${next > 6 ? 1 : next}`)
+  router.push(`/challenges/${next > 7 ? 1 : next}`)
+}
+
+function isExternalTarget(url) {
+  return /^https?:\/\//.test(url || '')
+}
+
+function openTarget() {
+  window.open(challenge.targetUrl, '_blank', 'noopener,noreferrer')
 }
 
 onMounted(loadData)
@@ -235,6 +244,10 @@ h2 {
   border-radius: 10px;
   color: #e0f2fe;
   background: rgba(59, 130, 246, 0.12);
+}
+
+.target-box .el-button {
+  width: fit-content;
 }
 
 .answer-box {

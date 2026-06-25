@@ -10,10 +10,10 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 HOST = "0.0.0.0"
-PORT = int(os.environ.get("SCORE_RUSH_PORT", "30008"))
+PORT = int(os.environ.get("SCORE_RUSH_PORT", "30011"))
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "score_rush.db"
-TARGET_SCORE = int(os.environ.get("TARGET_SCORE", "52000"))
+TARGET_SCORE = int(os.environ.get("TARGET_SCORE", "80000"))
 FLAG = os.environ.get("SCORE_RUSH_FLAG", "flag{score_tamper_first_blood_milktea}")
 TZ = timezone(timedelta(hours=8))
 
@@ -134,7 +134,7 @@ INDEX_HTML = r"""<!doctype html>
     .rules { padding: 24px; }
     .rules h2, .panel-title { margin: 0 0 14px; font-size: 18px; }
     .rules ul { margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.9; }
-    .grid { display: grid; grid-template-columns: 1fr 360px; gap: 18px; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
     .game { padding: 18px; }
     .bar { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
     .metric { padding: 12px; border: 1px solid rgba(127,190,255,.18); border-radius: 10px; background: rgba(12, 19, 32, .72); }
@@ -148,14 +148,8 @@ INDEX_HTML = r"""<!doctype html>
     input { height: 40px; border: 1px solid rgba(127,190,255,.26); border-radius: 9px; padding: 0 12px; color: var(--text); background: rgba(7, 12, 22, .82); outline: none; }
     button { height: 40px; border: 0; border-radius: 9px; padding: 0 15px; color: #04111b; background: linear-gradient(135deg, var(--cyan), #86efac); font-weight: 800; cursor: pointer; }
     button.secondary { color: var(--text); background: rgba(127,190,255,.14); border: 1px solid rgba(127,190,255,.25); }
-    .side { display: grid; gap: 18px; }
-    .side .card { padding: 18px; }
     .flag { display: none; margin-top: 12px; padding: 14px; border: 1px solid rgba(74,222,128,.36); border-radius: 10px; color: #bbf7d0; background: rgba(20, 83, 45, .24); overflow-wrap: anywhere; }
     .msg { min-height: 24px; margin-top: 10px; color: var(--muted); }
-    .first { border-color: rgba(251,191,36,.38); background: rgba(120, 53, 15, .18); }
-    .first strong { color: var(--gold); }
-    .recent { display: grid; gap: 8px; max-height: 230px; overflow: auto; }
-    .row { display: flex; justify-content: space-between; gap: 10px; padding: 9px 10px; border-radius: 8px; background: rgba(8, 13, 24, .62); color: #dbeafe; font-size: 13px; }
     .ok { color: var(--green); }
     .no { color: var(--red); }
     code { color: #a5f3fc; }
@@ -174,9 +168,9 @@ INDEX_HTML = r"""<!doctype html>
         <h2>题目规则</h2>
         <ul>
           <li>输入昵称，开始游戏。</li>
-          <li>在 35 秒内尽量点击分数块。</li>
+          <li>在 35 秒内尽量点击分数块，保持连击。</li>
           <li>达到 <code id="targetText">52000</code> 分即可拿到 flag。</li>
-          <li>服务器会记录第一个成功提交者作为“一血”。</li>
+          <li>拿到 flag 后回到答辩平台提交，管理员后台会记录一血。</li>
         </ul>
       </div>
     </section>
@@ -197,16 +191,6 @@ INDEX_HTML = r"""<!doctype html>
         <div class="msg" id="msg">提示：真正的高分，往往不只在鼠标速度里。</div>
         <div class="flag" id="flagBox"></div>
       </div>
-      <aside class="side">
-        <div class="card first">
-          <div class="panel-title">一血记录</div>
-          <div id="firstBlood">正在读取...</div>
-        </div>
-        <div class="card">
-          <div class="panel-title">最近提交</div>
-          <div class="recent" id="recent"></div>
-        </div>
-      </aside>
     </section>
   </main>
   <script>
@@ -226,7 +210,7 @@ INDEX_HTML = r"""<!doctype html>
       score = 0; combo = 0; timeLeft = 35; playing = true; arena.innerHTML = ''; document.querySelector('#flagBox').style.display = 'none'; sync();
       clearInterval(tick); clearInterval(spawnTick);
       tick = setInterval(() => { timeLeft--; sync(); if (timeLeft <= 0) finishGame(); }, 1000);
-      spawnTick = setInterval(spawnBug, 420);
+      spawnTick = setInterval(spawnBug, 300);
       setMsg('游戏开始。正常打到目标分很难，但不是没有路。');
     }
     function finishGame() {
@@ -237,14 +221,14 @@ INDEX_HTML = r"""<!doctype html>
       if (!playing) return;
       const bug = document.createElement('div');
       const hot = Math.random() < .12;
-      const value = hot ? 450 : 80 + Math.floor(Math.random() * 120);
+      const value = hot ? 980 : 180 + Math.floor(Math.random() * 260);
       bug.className = 'bug' + (hot ? ' hot' : '');
       bug.textContent = '+' + value;
       bug.style.left = Math.floor(Math.random() * Math.max(1, arena.clientWidth - 54)) + 'px';
       bug.style.top = Math.floor(Math.random() * Math.max(1, arena.clientHeight - 54)) + 'px';
-      bug.onclick = () => { combo++; score += value + Math.min(combo * 4, 160); bug.remove(); sync(); };
+      bug.onclick = () => { combo++; score += value + Math.min(combo * 8, 420); bug.remove(); sync(); };
       arena.appendChild(bug);
-      setTimeout(() => { if (bug.isConnected) { combo = 0; bug.remove(); sync(); } }, 920);
+      setTimeout(() => { if (bug.isConnected) { combo = 0; bug.remove(); sync(); } }, 760);
     }
     async function submitScore() {
       const res = await fetch('/api/finish', {
@@ -256,25 +240,14 @@ INDEX_HTML = r"""<!doctype html>
       if (data.success) {
         document.querySelector('#flagBox').style.display = 'block';
         document.querySelector('#flagBox').textContent = data.flag;
-        setMsg(data.firstBloodMine ? '你拿到一血了，奶茶安排！' : '挑战成功，但一血已经被拿走了。');
+        setMsg('挑战成功。复制 flag 回到答辩平台题目页提交，管理员后台会记录一血。');
       } else {
         setMsg(data.message || '分数还不够。');
       }
-      loadStats();
-    }
-    async function loadStats() {
-      const data = await fetch('/api/stats').then(r => r.json());
-      const fb = data.firstBlood;
-      document.querySelector('#firstBlood').innerHTML = fb
-        ? `<strong>${fb.nickname}</strong><br>分数：${fb.score}<br>时间：${fb.solved_at}<br>IP：${fb.ip}`
-        : '暂无一血，第一杯奶茶还在路上。';
-      document.querySelector('#recent').innerHTML = data.recent.map(item =>
-        `<div class="row"><span>${item.nickname}</span><span class="${item.success ? 'ok' : 'no'}">${item.score}</span></div>`
-      ).join('') || '<div class="row"><span>暂无提交</span><span>-</span></div>';
     }
     document.querySelector('#startBtn').onclick = resetGame;
     document.querySelector('#submitBtn').onclick = submitScore;
-    sync(); loadStats(); setInterval(loadStats, 5000);
+    sync();
   </script>
 </body>
 </html>"""
@@ -305,11 +278,6 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.end_headers()
             return
-        if path == "/api/stats":
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json; charset=utf-8")
-            self.end_headers()
-            return
         self.send_response(404)
         self.end_headers()
 
@@ -322,9 +290,6 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header("Content-Length", str(len(html)))
             self.end_headers()
             self.wfile.write(html)
-            return
-        if path == "/api/stats":
-            self.send_json(stats())
             return
         self.send_json({"error": "not found"}, 404)
 
@@ -339,26 +304,20 @@ class Handler(BaseHTTPRequestHandler):
         except Exception:
             self.send_json({"success": False, "message": "提交格式错误"}, 400)
             return
-        nickname = clean_name(payload.get("nickname"))
         try:
             score = int(payload.get("score", 0))
         except Exception:
             score = 0
         success = score >= TARGET_SCORE
-        before = first_blood()
-        record_submission(nickname, score, success, self.client_ip(), self.headers.get("User-Agent", ""))
-        after = first_blood()
         response = {
             "success": success,
             "score": score,
             "target": TARGET_SCORE,
             "message": "分数还不够，继续优化你的游戏策略。",
-            "firstBlood": after,
         }
         if success:
             response["flag"] = FLAG
-            response["message"] = "挑战成功。"
-            response["firstBloodMine"] = before is None and after and after.get("nickname") == nickname
+            response["message"] = "挑战成功。请复制 flag 回答辩平台提交。"
         self.send_json(response)
 
 

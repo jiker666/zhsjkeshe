@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PORT="${SCORE_RUSH_PORT:-30008}"
+PORT="${SCORE_RUSH_PORT:-30011}"
 APP_DIR="/opt/score-rush"
 ARCHIVE="/tmp/score-rush.tar.gz"
 
@@ -26,6 +26,7 @@ After=network.target
 Type=simple
 WorkingDirectory=${APP_DIR}
 Environment=SCORE_RUSH_PORT=${PORT}
+Environment=TARGET_SCORE=80000
 Environment=SCORE_RUSH_FLAG=flag{score_tamper_first_blood_milktea}
 ExecStart=/usr/bin/python3 ${APP_DIR}/server.py
 Restart=always

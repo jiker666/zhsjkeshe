@@ -286,12 +286,15 @@ public class ChallengeController {
         List<UserAchievement> unlocked = new ArrayList<>();
         if (solvedCount >= 1) unlocked.add(unlock(userId, "FIRST_SOLVE", "初次破冰", "首次答对靶场题目", "ice"));
         if (solvedCount >= 3) unlocked.add(unlock(userId, "SECURITY_BEGINNER", "安全新手", "累计答对 3 道题", "shield"));
-        if (solvedCount >= 6) unlocked.add(unlock(userId, "ARENA_MASTER", "靶场达人", "完成全部 6 道初始化题目", "crown"));
+        if (solvedCount >= 7) unlocked.add(unlock(userId, "ARENA_MASTER", "靶场达人", "完成全部 7 道初始化题目", "crown"));
         if (challenge.getCategory() != null && (challenge.getCategory().contains("未授权") || challenge.getCategory().contains("越权"))) {
             unlocked.add(unlock(userId, "RISK_HUNTER", "风险猎手", "完成访问控制高风险相关题目", "target"));
         }
         if ("Agent 推理".equals(challenge.getCategory())) {
             unlocked.add(unlock(userId, "AGENT_OBSERVER", "Agent 观察员", "完成 Agent 推理题", "agent"));
+        }
+        if ("游戏题".equals(challenge.getCategory())) {
+            unlocked.add(unlock(userId, "MILK_TEA_RUSH", "奶茶冲刺", "完成趣味游戏靶场题", "tea"));
         }
         return unlocked.stream().filter(item -> item.getId() != null).toList();
     }

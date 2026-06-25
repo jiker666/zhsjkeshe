@@ -5,9 +5,10 @@
 ## 题目说明
 
 - 正常玩法：在 35 秒内点击分数块，尝试达到目标分。
-- 目标分数：`52000`
+- 目标分数：`80000`
+- 难度说明：正常手打理论可过，但需要 35 秒内持续高命中率和高连击；预期 Web 解法仍是观察并修改结算请求中的 `score` 字段。
 - 预期解法：观察前端提交请求，修改提交到 `/api/finish` 的 `score` 字段。
-- 一血机制：服务端使用 SQLite 记录第一个成功提交者的昵称、IP、时间和分数。
+- 一血机制：小游戏只负责发放 flag；一血以答辩平台“靶场题目管理 -> 提交记录”中的第一条正确提交为准。
 
 ## 默认 Flag
 
@@ -18,13 +19,12 @@ flag{score_tamper_first_blood_milktea}
 ## 启动
 
 ```bash
-SCORE_RUSH_PORT=30008 python3 server.py
+SCORE_RUSH_PORT=30011 python3 server.py
 ```
 
 ## 接口
 
 - `GET /`：游戏页面
-- `GET /api/stats`：一血和最近提交记录
 - `POST /api/finish`：提交分数
 
 ## 安全边界

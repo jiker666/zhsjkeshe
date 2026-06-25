@@ -59,7 +59,7 @@ import { onMounted, reactive, ref } from 'vue'
 import { Search } from '@element-plus/icons-vue'
 import { listChallenges } from '../api'
 
-const categories = ['信息泄露', '水平越权', '弱口令', '接口参数篡改', '敏感信息泄露', 'Agent 推理']
+const categories = ['信息泄露', '水平越权', '弱口令', '接口参数篡改', '敏感信息泄露', 'Agent 推理', '游戏题']
 const loading = ref(false)
 const challenges = ref([])
 const total = ref(0)

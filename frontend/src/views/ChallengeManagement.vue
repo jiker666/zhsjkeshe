@@ -86,6 +86,15 @@
     </el-dialog>
 
     <el-dialog v-model="submitVisible" title="提交记录" width="860px">
+      <div v-if="firstBlood" class="first-blood">
+        <div class="blood-cup">1st</div>
+        <div>
+          <strong>一血记录：{{ firstBlood.username }}</strong>
+          <p>{{ currentChallenge?.title }} 于 {{ firstBlood.submitTime }} 首次正确提交，可作为奶茶奖励依据。</p>
+        </div>
+        <el-tag type="success" effect="dark">+{{ firstBlood.scoreGot }} 分</el-tag>
+      </div>
+      <el-alert v-else title="当前题目还没有正确提交，一血仍然空缺" type="info" show-icon :closable="false" class="first-empty" />
       <el-table :data="submissions" stripe empty-text="暂无提交">
         <el-table-column prop="username" label="用户" width="120" />
         <el-table-column prop="submitAnswer" label="答案" min-width="220" show-overflow-tooltip />
@@ -103,19 +112,26 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Search } from '@element-plus/icons-vue'
 import { createAdminChallenge, deleteAdminChallenge, listAdminChallengeSubmissions, listAdminChallenges, updateAdminChallenge, updateAdminChallengeStatus } from '../api'
 
-const categories = ['信息泄露', '水平越权', '弱口令', '接口参数篡改', '敏感信息泄露', 'Agent 推理']
+const categories = ['信息泄露', '水平越权', '弱口令', '接口参数篡改', '敏感信息泄露', 'Agent 推理', '游戏题']
 const records = ref([])
 const total = ref(0)
 const dialogVisible = ref(false)
 const submitVisible = ref(false)
 const submissions = ref([])
+const currentChallenge = ref(null)
 const query = reactive({ keyword: '', category: '', status: '', page: 1, size: 10 })
 const form = reactive(emptyForm())
+const firstBlood = computed(() => {
+  const correct = submissions.value
+    .filter(item => item.correct === 1)
+    .sort((a, b) => new Date(a.submitTime) - new Date(b.submitTime))
+  return correct[0] || null
+})
 
 function emptyForm() {
   return { id: null, title: '', category: '信息泄露', difficulty: '简单', score: 10, description: '', targetUrl: '', requestMethod: 'GET', requestExample: '', hint: '', answer: '', explanation: '', knowledgeId: 1, status: 'ENABLED' }
@@ -163,6 +179,7 @@ async function remove(row) {
 
 async function openSubmissions(row) {
   const data = await listAdminChallengeSubmissions(row.id, { page: 1, size: 50 })
+  currentChallenge.value = row
   submissions.value = data.records || []
   submitVisible.value = true
 }
@@ -180,5 +197,43 @@ onMounted(loadData)
   display: flex;
   justify-content: flex-end;
   margin-top: 16px;
+}
+
+.first-blood {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(250, 204, 21, 0.35);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(250, 204, 21, 0.24), transparent 34%),
+    rgba(15, 23, 42, 0.82);
+}
+
+.blood-cup {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  color: #422006;
+  font-weight: 900;
+  background: linear-gradient(135deg, #fde68a, #f59e0b);
+  box-shadow: 0 0 28px rgba(245, 158, 11, 0.28);
+}
+
+.first-blood strong {
+  color: #fef3c7;
+}
+
+.first-blood p {
+  margin: 4px 0 0;
+  color: #cbd5e1;
+}
+
+.first-empty {
+  margin-bottom: 14px;
 }
 </style>
